@@ -64,10 +64,12 @@ New to qwiic? Take a look at the entire [SparkFun qwiic ecosystem](https://www.s
 #-----------------------------------------------------------------------------
 # Drivers and driver baseclass
 from .i2c_driver 	import I2CDriver
+from .binho_i2c  	import BinhoI2C
 from .linux_i2c 	import LinuxI2C
 from .circuitpy_i2c import CircuitPythonI2C
 
-_drivers = [LinuxI2C, CircuitPythonI2C]
+
+_drivers = [BinhoI2C, LinuxI2C, CircuitPythonI2C]
 
 _theDriver = None
 
@@ -97,7 +99,7 @@ def getI2CDriver():
 	if _theDriver != None:
 		return _theDriver
 
-	
+
 
 	for driverClass in _drivers:
 
