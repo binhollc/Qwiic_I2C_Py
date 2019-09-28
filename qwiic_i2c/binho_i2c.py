@@ -26,10 +26,22 @@ def _connectToI2CBus():
 
 	try:
 
-		binho = binhoHostAdapter.binhoHostAdapter(_COM_PORT)
-		binho.setOperationMode(0, "I2C")
-		binho.setPullUpStateI2C(0, "EN")
-		binho.setClockI2C(0, 400000)
+		utilities = binhoUtilities.binhoUtilities()
+		devices = utilities.listAvailableDevices()
+
+		if len(devices) == 1:
+
+			binho = binhoHostAdapter.binhoHostAdapter(devices[0])
+			binho.setNumericalBase(10)
+			binho.setOperationMode(0, "I2C")
+			binho.setPullUpStateI2C(0, "EN")
+			binho.setClockI2C(0, 400000)
+		elif len(devices) > 1:
+			print("Error:\tUnable to connect to I2C bus. More than one Binho Host Adapter found.")
+			error=True
+		else:
+			print("Error:\tUnable to connect to I2C bus. No Binho Host Adapter found.")
+			error=True
 
 	except Exception as ee:
 
