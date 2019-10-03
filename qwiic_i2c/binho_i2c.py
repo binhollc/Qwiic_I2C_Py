@@ -247,7 +247,7 @@ class BinhoI2C(I2CDriver):
 		scanResults = []
 
 		for i in range(8, 121):
-			result = cls._i2cbus.scanAddrI2C(0, i)
+			result = cls._i2cbus.scanAddrI2C(0, i<<1)
 
 			resp = result.split(" ")
 
