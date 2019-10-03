@@ -251,7 +251,7 @@ class BinhoI2C(I2CDriver):
 
 			resp = result.split(" ")
 
-			if resp[3] == OK:
+			if resp[3] == 'OK':
 				scanResults = [scanResults, i]
 
 		return scanResults
