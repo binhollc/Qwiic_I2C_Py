@@ -8,7 +8,6 @@ import os
 
 
 _PLATFORM_NAME = "BinhoHostAdapter"
-_COM_PORT = "COM27"
 
 #-----------------------------------------------------------------------------
 # Internal function to connect to the systems I2C bus.
@@ -74,6 +73,11 @@ class BinhoI2C(I2CDriver):
 		# proviced
 		I2CDriver.__init__(self)
 
+	def __del__(self):
+
+		if(self._i2cbus != None):
+			self.i2cbus.close()
+
 
 	@classmethod
 	def isPlatform(cls):
@@ -116,18 +120,23 @@ class BinhoI2C(I2CDriver):
 
 	def readWord(self, address, commandCode):
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, commandCode)
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, commandCode)
 		self.i2cbus.endI2C(0, True)
 
 		buffer = bytearray(2)
 
-		result = self.i2cbus.readBytesI2C(0, address, 2)
+		result = self.i2cbus.readBytesI2C(0, address<<1, 2)
 
 		resp = result.split(" ")
 
-		buffer[0] = resp[3]
-		buffer[1] = resp[2]
+		if len(resp)>3:
+			buffer[0] = int(resp[3])
+			buffer[1] = int(resp[2])
+		else:
+			print("Error: I2C ReadWord Failure. Exiting...")
+			self.i2cbus.close()
+			sys.exit(1)
 
 		# build and return a word
 		return (buffer[1] << 8 ) | buffer[0]
@@ -135,30 +144,35 @@ class BinhoI2C(I2CDriver):
 	#----------------------------------------------------------
 	def readByte(self, address, commandCode):
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, commandCode)
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, commandCode)
 		self.i2cbus.endI2C(0, True)
 
 		buffer = bytearray(1)
 
-		result = self.i2cbus.readBytesI2C(0, address, 1)
+		result = self.i2cbus.readBytesI2C(0, address<<1, 1)
 
 		resp = result.split(" ")
 
-		buffer[0] = resp[2]
+		if len(resp)>2:
+			buffer[0] = int(resp[2])
+		else:
+			print("Error: I2C ReadByte Failure. Exiting...")
+			self.i2cbus.close()
+			sys.exit(1)
 
-		return buffer
+		return buffer[0]
 
 	#----------------------------------------------------------
 	def readBlock(self, address, commandCode, nBytes):
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, commandCode)
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, commandCode)
 		self.i2cbus.endI2C(0, True)
 
 		buffer = bytearray(nBytes)
 
-		result = self.i2cbus.readBytesI2C(0, address, nBytes)
+		result = self.i2cbus.readBytesI2C(0, address<<1, nBytes)
 
 		resp = result.split(" ")
 
@@ -178,51 +192,51 @@ class BinhoI2C(I2CDriver):
 
 	def writeCommand(self, address, commandCode):
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, commandCode)
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, commandCode)
 		self.i2cbus.endI2C(0, False)
 
 	#----------------------------------------------------------
 	def writeWord(self, address, commandCode, value):
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, commandCode)
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, commandCode)
 		self.i2cbus.endI2C(0, True)
 
 		buffer = bytearray(2)
 		buffer[0] = value & 0xFF
 		buffer[1] = (value >> 8) & 0xFF
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, buffer[1])
-		self.i2cbus.writeByte(0, buffer[0])
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, buffer[1])
+		self.i2cbus.writeByteI2C(0, buffer[0])
 		self.i2cbus.endI2C(0, False)	
 
 
 	#----------------------------------------------------------
 	def writeByte(self, address, commandCode, value):
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, commandCode)
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, commandCode)
 		self.i2cbus.endI2C(0, True)
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, bytes(value))
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, value)
 		self.i2cbus.endI2C(0, False)		
 
 	#----------------------------------------------------------
 	def writeBlock(self, address, commandCode, value):
 
-		self.i2cbus.startI2C(0, address)
-		self.i2cbus.writeByte(0, commandCode)
+		self.i2cbus.startI2C(0, address<<1)
+		self.i2cbus.writeByteI2C(0, commandCode)
 		self.i2cbus.endI2C(0, True)
 
 		data = [value] if isinstance(value, list) else value
 
-		self.i2cbus.startI2C(0, address)
+		self.i2cbus.startI2C(0, address<<1)
 
 		for i in range(len(data)):
-			self.i2cbus.writeByte(0, data[i])
+			self.i2cbus.writeByteI2C(0, data[i])
 
 		self.i2cbus.endI2C(0, False)
 
