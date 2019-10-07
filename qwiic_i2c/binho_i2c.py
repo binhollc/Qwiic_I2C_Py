@@ -154,12 +154,14 @@ class BinhoI2C(I2CDriver):
 
 		resp = result.split(" ")
 
+		print(resp)
+
 		if len(resp)>2:
 			buffer[0] = int(resp[2])
-		else:
-			print("Error: I2C ReadByte Failure. Exiting...")
-			self.i2cbus.close()
-			sys.exit(1)
+		#else:
+			#print("Error: I2C ReadByte Failure. Exiting...")
+			#self.i2cbus.close()
+			#sys.exit(1)
 
 		return buffer[0]
 
@@ -192,9 +194,18 @@ class BinhoI2C(I2CDriver):
 
 	def writeCommand(self, address, commandCode):
 
+		print(commandCode)
+
 		self.i2cbus.startI2C(0, address<<1)
 		self.i2cbus.writeByteI2C(0, commandCode)
-		self.i2cbus.endI2C(0, False)
+		result = self.i2cbus.endI2C(0, False)
+
+		resp = result.split(" ")
+
+		print(resp)
+
+		if resp == "-NG":
+			raise Exception("No I2C Device Found Specified Address")
 
 	#----------------------------------------------------------
 	def writeWord(self, address, commandCode, value):
@@ -216,6 +227,8 @@ class BinhoI2C(I2CDriver):
 	#----------------------------------------------------------
 	def writeByte(self, address, commandCode, value):
 
+		print(str(commandCode) + " " + str(value))
+
 		self.i2cbus.startI2C(0, address<<1)
 		self.i2cbus.writeByteI2C(0, commandCode)
 		self.i2cbus.endI2C(0, True)
@@ -235,8 +248,13 @@ class BinhoI2C(I2CDriver):
 
 		self.i2cbus.startI2C(0, address<<1)
 
-		for i in range(len(data)):
-			self.i2cbus.writeByteI2C(0, data[i])
+		if isinstance(data, list):
+
+			for i in range(len(data)):
+				self.i2cbus.writeByteI2C(0, data[i])
+
+		else:
+			self.i2cbus.writeByteI2C(0, data)
 
 		self.i2cbus.endI2C(0, False)
 
