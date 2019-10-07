@@ -163,7 +163,7 @@ class BinhoI2C(I2CDriver):
 		resp = result.split(" ")
 
 		for i in range(nBytes):
-			buffer[i] = resp[i+2]
+			buffer[i] = int(resp[i+2])
 
 		return buffer
 
