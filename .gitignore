@@ -1,0 +1,10 @@
+sparkfun_qwiic_i2c.egg-info/PKG-INFO
+build/lib/qwiic_i2c/linux_i2c.py
+build/lib/qwiic_i2c/i2c_driver.py
+build/lib/qwiic_i2c/binho_i2c.py
+build/lib/qwiic_i2c/__init__.py
+sparkfun_qwiic_i2c.egg-info/top_level.txt
+sparkfun_qwiic_i2c.egg-info/dependency_links.txt
+dist/sparkfun_qwiic_i2c-255.8.4-py3.7.egg
+build/lib/qwiic_i2c/circuitpy_i2c.py
+sparkfun_qwiic_i2c.egg-info/SOURCES.txt
